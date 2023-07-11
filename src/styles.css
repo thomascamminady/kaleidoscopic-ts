@@ -28,7 +28,7 @@ body.dark {
 .color-block {
     width: 100px;
     height: 100px;
-    margin: 5px;
+    margin: 3px;
     transition: height var(--ease-time) ease, border-radius var(--ease-time) ease;
     position: relative;
     border-radius: 15px 15px 15px 15px;
@@ -98,5 +98,5 @@ input:checked+.slider:before {
 }
 
 .slider.round:before {
-    border-radius: 50%;
+    border-radius: 15px;
 }
