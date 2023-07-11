@@ -11,6 +11,9 @@ export class Palette {
     getChromaColors(): chroma.Color[] {
         return this.colors.map(color => chroma(`#${color}`));
     }
+    getTextColor(color: chroma.Color): string {
+        return color.luminance() < 0.5 ? 'white' : 'black';
+    }
 }
 
 export function parseColorsFromUrl(url: string): string[] {

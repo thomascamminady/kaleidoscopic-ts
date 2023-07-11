@@ -7,10 +7,28 @@ html
     label.switch.top-left
       input(type='checkbox', onclick='toggleMode()')
       span.slider.round
+
+    a(href='/' class='title-link')
+      .title-container
+        h1 Kaleidoscopic
+
     div.centered
-      each color in palette
-        div(class='color-block', style=`background-color: ${color.css()};`)
+      each color, i in palette
+        div(class='color-block', style=`background-color: ${color.css()}; color: ${textColors[i]};`, data-color=color.hex())
+
+
     script.
       function toggleMode() {
         document.body.classList.toggle('dark');
       }
+      // Copy color code to clipboard
+      document.querySelectorAll('.color-block').forEach(function(colorBlock) {
+        colorBlock.addEventListener('click', function() {
+          var color = this.dataset.color;
+          navigator.clipboard.writeText(color).then(function() {
+            console.log('Copied color to clipboard:', color);
+          }, function(err) {
+            console.error('Could not copy color:', err);
+          });
+        });
+      });
