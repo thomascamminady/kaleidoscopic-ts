@@ -12,15 +12,20 @@ html
       .title-container
         h1 Kaleidoscopic
 
+    div.centered 
+      div.button-container
+        button#copyPaletteButton(type='button') Copy Palette
+        button#copyRGBPaletteButton(type='button') Copy RGB Palette
+
     div.centered
       each color, i in palette
         div(class='color-block', style=`background-color: ${color.css()}; color: ${textColors[i]};`, data-color=color.hex())
-
 
     script.
       function toggleMode() {
         document.body.classList.toggle('dark');
       }
+      
       // Copy color code to clipboard
       document.querySelectorAll('.color-block').forEach(function(colorBlock) {
         colorBlock.addEventListener('click', function() {
@@ -32,3 +37,58 @@ html
           });
         });
       });
+      
+      // Copy palette hex codes to clipboard
+      document.getElementById('copyPaletteButton').addEventListener('click', function() {
+        var hexCodes = Array.from(document.querySelectorAll('.color-block')).map(function(colorBlock) {
+          return colorBlock.dataset.color;
+        });
+        var palette = '["' + hexCodes.join('", "') + '"]';
+        navigator.clipboard.writeText(palette).then(function() {
+          console.log('Copied palette to clipboard:', palette);
+          showMessage('Copied to clipboard.');
+        }, function(err) {
+          console.error('Could not copy palette:', err);
+        });
+      });
+      
+      // Copy palette RGB values to clipboard
+      document.getElementById('copyRGBPaletteButton').addEventListener('click', function() {
+        var rgbValues = Array.from(document.querySelectorAll('.color-block')).map(function(colorBlock) {
+          var hexColor = colorBlock.dataset.color;
+          var rgbColor = hexToRgb(hexColor);
+          return 'rgb(' + rgbColor.r + ', ' + rgbColor.g + ', ' + rgbColor.b + ')';
+        });
+        var palette = '["' + rgbValues.join('", "') + '"]';
+        navigator.clipboard.writeText(palette).then(function() {
+          console.log('Copied RGB palette to clipboard:', palette);
+          showMessage('Copied palette.');
+        }, function(err) {
+          console.error('Could not copy RGB palette:', err);
+        });
+      });
+      
+      // Helper function to convert hex to RGB
+      function hexToRgb(hex) {
+        var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+        hex = hex.replace(shorthandRegex, function(_, r, g, b) {
+          return r + r + g + g + b + b;
+        });
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16)
+        } : null;
+      }
+      
+      // Helper function to display message
+      function showMessage(message) {
+        var messageElement = document.createElement('div');
+        messageElement.textContent = message;
+        messageElement.className = 'message';
+        document.body.appendChild(messageElement);
+        setTimeout(function() {
+          document.body.removeChild(messageElement);
+        }, 2000);
+      }

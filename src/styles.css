@@ -1,6 +1,7 @@
 :root {
-    --light-color: #f0f0f0;
+    --light-color: #fdfdfd;
     --dark-color: #2c2c2c;
+    --middle-color: #7b7b7b;
     --ease-time: 0.3s;
 }
 
@@ -24,7 +25,7 @@ body.dark {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 30vh;
 }
 
 /* Title link styles */
@@ -38,7 +39,7 @@ body.dark {
 /* Color Block Styles */
 .color-block {
     width: 150px;
-    height: 300px;
+    height: 200px;
     margin: 5px;
     transition: height var(--ease-time) ease, border-radius var(--ease-time) ease;
     position: relative;
@@ -46,7 +47,7 @@ body.dark {
 }
 
 .color-block:hover {
-    height: 500px;
+    height: 300px;
     z-index: 2;
 }
 
@@ -199,4 +200,42 @@ body.dark h1 {
 .preview-link {
     text-decoration: none;
     color: transparent;
+}
+
+/* Button Container Styles */
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Copy Button Styles */
+#copyPaletteButton,
+#copyRGBPaletteButton {
+    margin: 0 10px;
+    padding: 10px 20px;
+    background-color: var(--dark-color);
+    color: var(--light-color);
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color var(--ease-time) ease, color var(--ease-time) ease;
+}
+
+
+
+body.dark #copyPaletteButton,
+body.dark #copyRGBPaletteButton {
+    background-color: var(--light-color);
+    color: var(--dark-color);
+}
+
+/* Copy Message Styles */
+.message {
+    margin-top: 40px;
+    font-size: 24px;
+    color: var(--dark-color);
+    text-align: center;
 }

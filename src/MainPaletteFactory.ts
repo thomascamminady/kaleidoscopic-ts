@@ -4,6 +4,7 @@ import {
     DistinctPaletteFactory,
     ShadePaletteFactory,
     InterpolatedPaletteFactory,
+    CamminadyDevPaletteFactory
 } from './PaletteFactory';
 
 export class MainFactory extends PaletteFactory {
@@ -12,6 +13,7 @@ export class MainFactory extends PaletteFactory {
     constructor() {
         super();
         this.factories = [
+            new CamminadyDevPaletteFactory(),
             new DistinctPaletteFactory(),
             new InterpolatedPaletteFactory(),
             new ShadePaletteFactory(),
