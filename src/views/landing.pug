@@ -1,0 +1,23 @@
+doctype html
+html
+  head
+    title Palette Landing Page
+    link(rel='stylesheet', href='/styles.css')
+  body
+    label.switch.top-left
+      input(type='checkbox', onclick='toggleMode()')
+      span.slider.round
+    a(href='/' class='title-link')
+      .title-container
+        h1 Kaleidoscopic
+    .palette-grid
+      each palette in palettes
+        a(href=`/palette/${palette.colors.join('-')}`, class='preview-link')
+          .palette-preview
+            each color in palette.colors
+              span(style=`background-color: #${color};`) &nbsp;
+
+    script.
+      function toggleMode() {
+        document.body.classList.toggle('dark');
+      }
