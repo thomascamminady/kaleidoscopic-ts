@@ -4,34 +4,42 @@ import {
     DistinctPaletteFactory,
     ShadePaletteFactory,
     InterpolatedPaletteFactory,
-    CamminadyDevPaletteFactory
+    CamminadyDevPaletteFactory,
+    TopPalettesFactory
 } from './PaletteFactory';
 
 export class MainFactory extends PaletteFactory {
-    private factories: PaletteFactory[];
+    private factories: PaletteFactory[] = [
+        new CamminadyDevPaletteFactory(),
+        new DistinctPaletteFactory(),
+        new InterpolatedPaletteFactory(),
+        new ShadePaletteFactory(),
+    ];
 
     constructor() {
         super();
-        this.factories = [
-            new CamminadyDevPaletteFactory(),
-            new DistinctPaletteFactory(),
-            new InterpolatedPaletteFactory(),
-            new ShadePaletteFactory(),
-        ];
     }
 
-    public generatePalettes(numPalettes: number): Palette[] {
+    public async generatePalettes(numPalettes: number): Promise<Palette[]> {
         const palettes: Palette[] = [];
-        for (let i = 0; i < numPalettes; i++) {
+
+        // Get top palettes
+        const topPalettesFactory = new TopPalettesFactory();
+        const topPalettes = await topPalettesFactory.generatePalettes(100);
+        palettes.push(...topPalettes);
+
+        const numRemainingPalettes = numPalettes - palettes.length;
+
+        // Generate the remaining palettes using the other factories
+        for (let i = 0; i < numRemainingPalettes; i++) {
             // Select a random factory
-            const factory =
-                this.factories[Math.floor(Math.random() * this.factories.length)];
+            const factory = this.factories[Math.floor(Math.random() * this.factories.length)];
 
             // Generate a palette using the selected factory
-            // Note: This assumes each factory generates at least one palette
-            const palette = factory.generatePalettes(1)[0];
+            const palette = (await factory.generatePalettes(1))[0];
             palettes.push(palette);
         }
+
         return palettes;
     }
 }

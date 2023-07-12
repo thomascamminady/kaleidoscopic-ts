@@ -4,7 +4,7 @@ import { Color } from './Color';
 import chroma from 'chroma-js';
 
 export abstract class PaletteFactory {
-    public abstract generatePalettes(numPalettes: number): Palette[];
+    public abstract generatePalettes(numPalettes: number): Promise<Palette[]>;
 
     protected compareBrightness(a: string, b: string): number {
         const brightnessA = chroma(`#${a}`).luminance();
@@ -12,9 +12,26 @@ export abstract class PaletteFactory {
         return brightnessA > brightnessB ? -1 : brightnessA < brightnessB ? 1 : 0;
     }
 }
+import PaletteModel from './PaletteModel';
+
+export class TopPalettesFactory extends PaletteFactory {
+    public async generatePalettes(numPalettes: number): Promise<Palette[]> {
+        // Get the top numPalettes from the database
+        const topPalettes = await PaletteModel.find().sort({ count: -1 }).limit(numPalettes).exec();
+
+        // Convert the database objects to Palette objects
+        const paletteObjects: Palette[] = topPalettes.map((dbPalette, index) => {
+            console.log(`Rank: ${index + 1}, Count: ${dbPalette.count}, Colors: ${dbPalette.colors}`);
+            return new Palette(dbPalette.colors);
+        });
+
+        return paletteObjects;
+    }
+}
+
 
 export class RandomPaletteFactory extends PaletteFactory {
-    public generatePalettes(numPalettes: number): Palette[] {
+    public async generatePalettes(numPalettes: number): Promise<Palette[]> {
         const randomPalettes: Palette[] = [];
         for (let i = 0; i < numPalettes; i++) {
             const randomColors: string[] = [];
@@ -32,7 +49,7 @@ export class RandomPaletteFactory extends PaletteFactory {
 }
 
 export class DistinctPaletteFactory extends PaletteFactory {
-    public generatePalettes(numPalettes: number): Palette[] {
+    public async generatePalettes(numPalettes: number): Promise<Palette[]> {
         const distinctPalettes: Palette[] = [];
 
         for (let i = 0; i < numPalettes; i++) {
@@ -63,7 +80,7 @@ export class DistinctPaletteFactory extends PaletteFactory {
 }
 
 export class ShadePaletteFactory extends PaletteFactory {
-    public generatePalettes(numPalettes: number): Palette[] {
+    public async generatePalettes(numPalettes: number): Promise<Palette[]> {
         const shadePalettes: Palette[] = [];
 
         for (let i = 0; i < numPalettes; i++) {
@@ -91,7 +108,7 @@ export class ShadePaletteFactory extends PaletteFactory {
 }
 
 export class InterpolatedPaletteFactory extends PaletteFactory {
-    public generatePalettes(numPalettes: number): Palette[] {
+    public async generatePalettes(numPalettes: number): Promise<Palette[]> {
         const interpolatedPalettes: Palette[] = [];
         for (let i = 0; i < numPalettes; i++) {
             const interpolatedColors: string[] = [];
@@ -120,7 +137,7 @@ export class InterpolatedPaletteFactory extends PaletteFactory {
 
 
 export class CamminadyDevPaletteFactory extends PaletteFactory {
-    public generatePalettes(numPalettes: number): Palette[] {
+    public async generatePalettes(numPalettes: number): Promise<Palette[]> {
         const hexpalettes = [
             ['#C4E6C3', '#96D2A4', '#6DBC90', '#4DA284', '#36877A', '#266B6E', '#1D4F60'],
             ['#F7FEAE', '#B7E6A5', '#7CCBA2', '#46AEA0', '#089099', '#00718B', '#045275'],
