@@ -224,3 +224,61 @@ body.dark h1 {
 	font-size: 18px;
 	white-space: pre-wrap;
 }
+
+#colorPicker {
+	width: 100px;
+	height: 100px;
+	border: none;
+	cursor: pointer;
+	transition: height var(--ease-time) ease, border-radius var(--ease-time) ease;
+	border-radius: 100%;
+	margin: 5px;
+}
+
+#colorPicker:hover {
+	transform: scale(1.1);
+
+}
+
+
+
+/* Create Palette Button Styles */
+#button {
+	display: inline-block;
+	padding: 15px 32px;
+	margin: 15px 5px;
+	font-size: 16px;
+	transition-duration: 0.4s;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	outline: none;
+	color: var(--light-color);
+	background-color: var(--dark-color);
+	border: none;
+	border-radius: 15px;
+	font-family: 'Roboto', sans-serif;
+}
+
+#button:hover {
+	transform: scale(1.3);
+}
+
+.create-button {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	font-size: 40px;
+	font-weight: bold;
+	text-decoration: none;
+	color: var(--dark-color);
+	transition: color 0.3s ease;
+}
+
+.create-button:hover {
+	transform: scale(1.3);
+}
+
+body.dark .create-button {
+	color: var(--light-color);
+}
