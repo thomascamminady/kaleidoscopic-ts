@@ -37,7 +37,7 @@ html
         colorPicker.value = '#D3D3D3'; // Reset the color picker
       }
       function createPalette() {
-        let truncatedColors = colors.slice(0, 10); // Take the first 10 entries of the colors array
+        let truncatedColors = colors.slice(0, 8); // Take the first 10 entries of the colors array
         location.href = '/palette/' + truncatedColors.join('-');
       }
       function toggleMode() {

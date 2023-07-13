@@ -43,10 +43,12 @@ export class MainFactory extends PaletteFactory {
 
             // Generate a palette using the selected factory
             const palette = (await factory.generatePalettes(1))[0];
-            const key = palette.colors.join('');
-            if (!paletteSet.has(key)) {
-                palettes.push(palette);
-                paletteSet.add(key);
+            if (palette.colors.length < 10) {
+                const key = palette.colors.join('');
+                if (!paletteSet.has(key)) {
+                    palettes.push(palette);
+                    paletteSet.add(key);
+                }
             }
         }
 
