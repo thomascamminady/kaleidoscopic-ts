@@ -1,8 +1,16 @@
+import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { parseColorsFromUrl, Palette } from './Palette';
 import { MainFactory } from './MainPaletteFactory';
 import winston from 'winston';
+import mongoose from 'mongoose';
+import PaletteModel from './PaletteModel';
+
+const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}/${process.env.MONGO_DB_NAME}?retryWrites=true&w=majority`;
+mongoose.connect(uri, { useUnifiedTopology: true } as any)
+    .then(() => console.log('Connected to MongoDB...'))
+    .catch(err => console.error('Could not connect to MongoDB...', err));
 
 const app = express();
 app.use(express.static(path.join(__dirname)));
@@ -22,27 +30,37 @@ const logger = winston.createLogger({
   ]
 });
 
-const paletteFactory = new MainFactory();
 
 // Middleware to log requests
 app.use((req, res, next) => {
   logger.info(`[${req.method}] ${req.url}`);
   next();
 });
-
-app.get('/', (req, res) => {
-  const palettes = paletteFactory.generatePalettes(1000);
-  logger.info('User accessed the / route'); // Log the access to the / route
-  res.render('landing', { palettes: palettes });
+app.get('/', async (req, res) => {
+    const palettes = await paletteFactory.generatePalettes(1000);
+    res.render('landing', { palettes: palettes });
 });
 
-app.get('/palette/:colors', (req, res) => {
-  const colors = parseColorsFromUrl(req.params.colors);
-  const palette = new Palette(colors);
-  const chromaColors = palette.getChromaColors();
-  const textColors = chromaColors.map((color) => palette.getTextColor(color));
-  logger.info(`User viewed a palette: ${req.params.colors}`); // Log the palette view
-  res.render('palette', { palette: chromaColors, textColors: textColors });
+const paletteFactory = new MainFactory();
+app.get('/palette/:colors', async (req, res) => {
+    const colors = parseColorsFromUrl(req.params.colors);
+
+    // Check if palette exists in the database
+    let paletteInDb = await PaletteModel.findOne({ colors: colors });
+
+    if (!paletteInDb) {
+        // Palette does not exist in database, create new one
+        paletteInDb = new PaletteModel({ colors: colors });
+    }
+
+    // Increase the access count and save to database
+    paletteInDb.count += 1;
+    await paletteInDb.save();
+
+    const palette = new Palette(colors);
+    const chromaColors = palette.getChromaColors();
+    const textColors = chromaColors.map((color) => palette.getTextColor(color));
+    res.render('palette', { palette: chromaColors, textColors: textColors });
 });
 
 app.listen(3000, () => {
