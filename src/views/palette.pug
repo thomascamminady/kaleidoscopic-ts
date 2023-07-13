@@ -14,12 +14,20 @@ html
 
     div.centered 
       div.button-container
-        button#copyPaletteButton(type='button') Copy Palette
-        button#copyRGBPaletteButton(type='button') Copy RGB Palette
 
     div.centered
       each color, i in palette
         div(class='color-block', style=`background-color: ${color.css()}; color: ${textColors[i]};`, data-color=color.hex())
+
+    div.code-box.centered
+      pre#hexCodes
+        | [
+        each color, i in palette
+          | "#{color.hex()}"
+          if i !== palette.length - 1
+            | ,
+        | ]
+
 
     script.
       function toggleMode() {
@@ -38,36 +46,6 @@ html
         });
       });
       
-      // Copy palette hex codes to clipboard
-      document.getElementById('copyPaletteButton').addEventListener('click', function() {
-        var hexCodes = Array.from(document.querySelectorAll('.color-block')).map(function(colorBlock) {
-          return colorBlock.dataset.color;
-        });
-        var palette = '["' + hexCodes.join('", "') + '"]';
-        navigator.clipboard.writeText(palette).then(function() {
-          console.log('Copied palette to clipboard:', palette);
-          showMessage('Copied to clipboard.');
-        }, function(err) {
-          console.error('Could not copy palette:', err);
-        });
-      });
-      
-      // Copy palette RGB values to clipboard
-      document.getElementById('copyRGBPaletteButton').addEventListener('click', function() {
-        var rgbValues = Array.from(document.querySelectorAll('.color-block')).map(function(colorBlock) {
-          var hexColor = colorBlock.dataset.color;
-          var rgbColor = hexToRgb(hexColor);
-          return 'rgb(' + rgbColor.r + ', ' + rgbColor.g + ', ' + rgbColor.b + ')';
-        });
-        var palette = '["' + rgbValues.join('", "') + '"]';
-        navigator.clipboard.writeText(palette).then(function() {
-          console.log('Copied RGB palette to clipboard:', palette);
-          showMessage('Copied palette.');
-        }, function(err) {
-          console.error('Could not copy RGB palette:', err);
-        });
-      });
-      
       // Helper function to convert hex to RGB
       function hexToRgb(hex) {
         var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -81,14 +59,4 @@ html
           b: parseInt(result[3], 16)
         } : null;
       }
-      
-      // Helper function to display message
-      function showMessage(message) {
-        var messageElement = document.createElement('div');
-        messageElement.textContent = message;
-        messageElement.className = 'message';
-        document.body.appendChild(messageElement);
-        setTimeout(function() {
-          document.body.removeChild(messageElement);
-        }, 2000);
-      }
+
