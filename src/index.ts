@@ -44,6 +44,7 @@ app.get('/', async (req, res) => {
 const paletteFactory = new MainFactory();
 app.get('/palette/:colors', async (req, res) => {
     const colors = parseColorsFromUrl(req.params.colors);
+    logger.info(`User viewed a palette: ${req.params.colors}`); // Log the palette view
 
     // Check if palette exists in the database
     let paletteInDb = await PaletteModel.findOne({ colors: colors });
@@ -55,7 +56,9 @@ app.get('/palette/:colors', async (req, res) => {
 
     // Increase the access count and save to database
     paletteInDb.count += 1;
+    logger.info(`Counter of palette is ${paletteInDb.count}`);
     await paletteInDb.save();
+
 
     const palette = new Palette(colors);
     const chromaColors = palette.getChromaColors();
