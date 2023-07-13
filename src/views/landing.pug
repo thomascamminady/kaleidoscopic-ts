@@ -10,6 +10,8 @@ html
     a(href='/' class='title-link')
       .title-container
         h1 Kaleidoscopic
+    a.create-button.top-right(href='/create')
+      span +
     .palette-grid
       each palette in palettes
         a(href=`/palette/${palette.colors.join('-')}`, class='preview-link')
