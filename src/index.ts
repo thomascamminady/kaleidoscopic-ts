@@ -30,40 +30,49 @@ const logger = winston.createLogger({
   ]
 });
 
+
 // Middleware to log requests
 app.use((req, res, next) => {
   logger.info(`[${req.method}] ${req.url}`);
   next();
 });
-
 app.get('/', async (req, res) => {
-  try {
-    const palettes = await paletteFactory.generatePalettes(1000);
-    res.render('landing', { palettes: palettes });
-  } catch (error) {
-    console.error('Error generating palettes:', error);
-    res.status(500).send('Error generating palettes');
-  }
+  const palettes = await paletteFactory.generatePalettes(1000);
+  res.render('landing', { palettes: palettes });
 });
 
 const paletteFactory = new MainFactory();
 app.get('/palette/:colors', async (req, res) => {
   try {
+    // Regular expression for a hexadecimal color value
+    const regex = /^([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})(-([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6}))*$/;
+
+    // If the provided color string does not match the regular expression, redirect to '/'
+    if (!regex.test(req.params.colors)) {
+      logger.info("redirecting to /")
+      res.redirect('/');
+      return;
+    }
+
     const colors = parseColorsFromUrl(req.params.colors);
     logger.info(`User viewed a palette: ${req.params.colors}`); // Log the palette view
 
     // Check if palette exists in the database
-    let paletteInDb = await PaletteModel.findOne({ colors: colors });
+    try {
+      let paletteInDb = await PaletteModel.findOne({ colors: colors });
 
-    if (!paletteInDb) {
-      // Palette does not exist in database, create new one
-      paletteInDb = new PaletteModel({ colors: colors });
+      if (!paletteInDb) {
+        // Palette does not exist in database, create new one
+        paletteInDb = new PaletteModel({ colors: colors });
+      }
+
+      // Increase the access count and save to database
+      paletteInDb.count += 1;
+      logger.info(`Counter of palette is ${paletteInDb.count}`);
+      await paletteInDb.save();
+    } catch (error) {
+      logger.info("Error writing to database.")
     }
-
-    // Increase the access count and save to database
-    paletteInDb.count += 1;
-    logger.info(`Counter of palette is ${paletteInDb.count}`);
-    await paletteInDb.save();
 
     const palette = new Palette(colors);
     const chromaColors = palette.getChromaColors();
@@ -75,6 +84,7 @@ app.get('/palette/:colors', async (req, res) => {
   }
 });
 
+
 app.get('/create', (req, res) => {
   res.render('create'); // this will render a pug view named 'create'
 });
@@ -82,3 +92,4 @@ app.get('/create', (req, res) => {
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });
+
