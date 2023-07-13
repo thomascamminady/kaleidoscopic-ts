@@ -30,40 +30,49 @@ const logger = winston.createLogger({
   ]
 });
 
-
 // Middleware to log requests
 app.use((req, res, next) => {
   logger.info(`[${req.method}] ${req.url}`);
   next();
 });
+
 app.get('/', async (req, res) => {
-  const palettes = await paletteFactory.generatePalettes(1000);
-  res.render('landing', { palettes: palettes });
+  try {
+    const palettes = await paletteFactory.generatePalettes(1000);
+    res.render('landing', { palettes: palettes });
+  } catch (error) {
+    console.error('Error generating palettes:', error);
+    res.status(500).send('Error generating palettes');
+  }
 });
 
 const paletteFactory = new MainFactory();
 app.get('/palette/:colors', async (req, res) => {
-  const colors = parseColorsFromUrl(req.params.colors);
-  logger.info(`User viewed a palette: ${req.params.colors}`); // Log the palette view
+  try {
+    const colors = parseColorsFromUrl(req.params.colors);
+    logger.info(`User viewed a palette: ${req.params.colors}`); // Log the palette view
 
-  // Check if palette exists in the database
-  let paletteInDb = await PaletteModel.findOne({ colors: colors });
+    // Check if palette exists in the database
+    let paletteInDb = await PaletteModel.findOne({ colors: colors });
 
-  if (!paletteInDb) {
-    // Palette does not exist in database, create new one
-    paletteInDb = new PaletteModel({ colors: colors });
+    if (!paletteInDb) {
+      // Palette does not exist in database, create new one
+      paletteInDb = new PaletteModel({ colors: colors });
+    }
+
+    // Increase the access count and save to database
+    paletteInDb.count += 1;
+    logger.info(`Counter of palette is ${paletteInDb.count}`);
+    await paletteInDb.save();
+
+    const palette = new Palette(colors);
+    const chromaColors = palette.getChromaColors();
+    const textColors = chromaColors.map((color) => palette.getTextColor(color));
+    res.render('palette', { palette: chromaColors, textColors: textColors });
+  } catch (error) {
+    console.error('Error handling palette request:', error);
+    res.status(500).send('Error handling palette request');
   }
-
-  // Increase the access count and save to database
-  paletteInDb.count += 1;
-  logger.info(`Counter of palette is ${paletteInDb.count}`);
-  await paletteInDb.save();
-
-
-  const palette = new Palette(colors);
-  const chromaColors = palette.getChromaColors();
-  const textColors = chromaColors.map((color) => palette.getTextColor(color));
-  res.render('palette', { palette: chromaColors, textColors: textColors });
 });
 
 app.get('/create', (req, res) => {
@@ -73,4 +82,3 @@ app.get('/create', (req, res) => {
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });
-

@@ -231,7 +231,7 @@ body.dark h1 {
 	border: none;
 	cursor: pointer;
 	transition: height var(--ease-time) ease, border-radius var(--ease-time) ease;
-	border-radius: 100%;
+	border-radius: 0%;
 	margin: 5px;
 }
 

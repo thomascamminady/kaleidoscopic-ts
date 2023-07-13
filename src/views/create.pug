@@ -4,9 +4,7 @@ html
     title Create Palette
     link(rel='stylesheet', href='/styles.css')
   body
-    label.switch.top-left
-      input(type='checkbox', onclick='toggleMode()')
-      span.slider.round
+   
 
     a(href='/' class='title-link')
       .title-container
@@ -39,7 +37,8 @@ html
         colorPicker.value = '#D3D3D3'; // Reset the color picker
       }
       function createPalette() {
-        location.href = '/palette/' + colors.join('-');
+        let truncatedColors = colors.slice(0, 10); // Take the first 10 entries of the colors array
+        location.href = '/palette/' + truncatedColors.join('-');
       }
       function toggleMode() {
         document.body.classList.toggle('dark');
