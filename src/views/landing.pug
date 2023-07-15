@@ -7,19 +7,34 @@ html
     label.switch.top-left
       input(type='checkbox', onclick='toggleMode()')
       span.slider.round
+    .button-group
+      a.create-button(href='/create')
+        span +
     a(href='/' class='title-link')
       .title-container
         h1 Kaleidoscopic
-    a.create-button.top-right(href='/create')
-      span +
+      .title-container
+        p
+          a(href="http://camminady.dev", class="author-link") My
+          |  minimal, view-ranked website for color palettes.
+
+
     .palette-grid
       each palette in palettes
         a(href=`/palette/${palette.colors.join('-')}`, class='preview-link')
           .palette-preview
             each color in palette.colors
               span(style=`background-color: #${color};`) &nbsp;
-
     script.
       function toggleMode() {
-        document.body.classList.toggle('dark');
+        var isDarkMode = document.body.classList.toggle('dark');
+        
+        // Change color of the grayscale slider
+        if (isDarkMode) {
+          document.documentElement.style.setProperty('--slider-color', '#fdfdfd');
+          document.documentElement.style.setProperty('--slider-bg-color', '#2c2c2c');
+        } else {
+          document.documentElement.style.setProperty('--slider-color', '#2c2c2c');
+          document.documentElement.style.setProperty('--slider-bg-color', '#fdfdfd');
+        }
       }

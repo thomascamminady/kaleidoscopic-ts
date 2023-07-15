@@ -8,6 +8,12 @@ html
       input(type='checkbox', onclick='toggleMode()')
       span.slider.round
 
+    label.switch.top-right
+      input(type='checkbox', id='grayscaleToggle')
+      span.slider.round
+
+
+
     a(href='/' class='title-link')
       .title-container
         h1 Kaleidoscopic
@@ -28,11 +34,46 @@ html
             | ,
         | ]
 
+   
 
     script.
-      function toggleMode() {
-        document.body.classList.toggle('dark');
+      var grayscale = false;
+
+      document.getElementById('grayscaleToggle').addEventListener('change', function() {
+          if (this.checked) {
+            convertToGrayscale();
+          } else {
+            convertToOriginal();
+          }
+      });
+
+
+      function convertToGrayscale() {
+        document.querySelectorAll('.color-block').forEach(function(colorBlock) {
+          var rgb = hexToRgb(colorBlock.dataset.color);
+          var grayscale = Math.round((rgb.r * 0.3) + (rgb.g * 0.59) + (rgb.b * 0.11));
+          colorBlock.style.backgroundColor = `rgb(${grayscale}, ${grayscale}, ${grayscale})`;
+        });
       }
+
+      function convertToOriginal() {
+        document.querySelectorAll('.color-block').forEach(function(colorBlock) {
+          colorBlock.style.backgroundColor = colorBlock.dataset.color;
+        });
+      }
+      function toggleMode() {
+        var isDarkMode = document.body.classList.toggle('dark');
+        
+        // Change color of the grayscale slider
+        if (isDarkMode) {
+          document.documentElement.style.setProperty('--slider-color', '#fdfdfd');
+          document.documentElement.style.setProperty('--slider-bg-color', '#2c2c2c');
+        } else {
+          document.documentElement.style.setProperty('--slider-color', '#2c2c2c');
+          document.documentElement.style.setProperty('--slider-bg-color', '#fdfdfd');
+        }
+      }
+
       
       // Copy color code to clipboard
       document.querySelectorAll('.color-block').forEach(function(colorBlock) {
